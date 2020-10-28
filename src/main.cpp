@@ -56,30 +56,22 @@ template <> std::string pretty_name<double>     (){ return "double";   }
 template <> std::string pretty_name<Tuple<int>> (){ return "TupleInt"; }
 template <> std::string pretty_name<Tuple<double, std::string>> (){ return "TupleDoubleStr"; }
 
-/**********************************************************************
- * Bind the "get" template of Tuple for all types in a parameter pack *
- **********************************************************************/
+/***********************************************************************
+ * Bind the member template of Tuple for all types in a parameter pack *
+ ***********************************************************************/
 
 template <class C>
-void bind_member_template_for_all_T(py::class_<C>&, std::string const&){}
+void bind_member_template_for_all_T(py::class_<C>&){}
 
 template <class C, class T, class... Ts>
-void bind_member_template_for_all_T(py::class_<C>& c, std::string const& basename)
+void bind_member_template_for_all_T(py::class_<C>& c)
 {
-    std::ostringstream o1;
-    o1 << "get_" << pretty_name<T>();
-    c.def(o1.str().c_str(), py::overload_cast<>(&C::template get<T>));
-
-    std::ostringstream o2;
-    o2 << "get_" << pretty_name<T>();
-    c.def(o2.str().c_str(), py::overload_cast<>(&C::template get<T>, py::const_));
-
-    std::ostringstream o3;
-    o3 << "set_" << pretty_name<T>();
-    c.def(o3.str().c_str(), &C::template set<T>);
+    c.def(("get_" + pretty_name<T>()).c_str(), py::overload_cast<>(&C::template get<T>))
+     .def(("get_" + pretty_name<T>()).c_str(), py::overload_cast<>(&C::template get<T>, py::const_))
+     .def(("set_" + pretty_name<T>()).c_str(), &C::template set<T>);
 
     // recursively bind the member for each type
-    bind_member_template_for_all_T<C, Ts...>(c, basename);
+    bind_member_template_for_all_T<C, Ts...>(c);
 }
 
 /**************************************************
@@ -93,7 +85,8 @@ void bindTuple(py::module& m, std::string const& name)
     py::class_<Class> c(m, name.c_str());
     c.def(py::init<>());
 
-    bind_member_template_for_all_T<Class, Ts...>(c, "get_");
+    //bind set, set const and get
+    bind_member_template_for_all_T<Class, Ts...>(c);
 
 }
 
