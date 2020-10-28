@@ -66,12 +66,19 @@ void bind_member_template_for_all_T(py::class_<C>&, std::string const&){}
 template <class C, class T, class... Ts>
 void bind_member_template_for_all_T(py::class_<C>& c, std::string const& basename)
 {
-    // name of method is basename + typename
-    std::ostringstream o;
-    o << basename << pretty_name<T>();
+    std::ostringstream o1;
+    o1 << "get_" << pretty_name<T>();
+    c.def(o1.str().c_str(), py::overload_cast<>(&C::template get<T>));
+
+    std::ostringstream o2;
+    o2 << "get_" << pretty_name<T>();
+    c.def(o2.str().c_str(), py::overload_cast<>(&C::template get<T>, py::const_));
+
+    std::ostringstream o3;
+    o3 << "set_" << pretty_name<T>();
+    c.def(o3.str().c_str(), &C::template set<T>);
 
     // recursively bind the member for each type
-    c.def(o.str().c_str(), py::overload_cast<>(&C::template get<T>));
     bind_member_template_for_all_T<C, Ts...>(c, basename);
 }
 
