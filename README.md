@@ -11,8 +11,8 @@ Just clone this repository and pip install. Note the `--recursive` option which 
 needed for the pybind11 submodule:
 
 ```bash
-git clone --recursive https://github.com/pybind/cmake_example.git
-pip install ./cmake_example
+git clone --recursive https://github.com/joergbrech/template_pybind_example
+pip install ./template_pybind_example
 ```
 
 With the `setup.py` file included in this example, the `pip install` command will
